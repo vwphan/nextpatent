@@ -1,4 +1,5 @@
 // pages/index.js
+import { createUser } from '../lib/mongodb';
 import Head from 'next/head';
 import { useState } from 'react';
 import { Verify } from '@twilio/verify';
