@@ -5,7 +5,7 @@ export default function TwilioLoginBox() {
   // State variables
   const [phoneNumber, setPhoneNumber] = useState(''); // Input for phone number
   const [otpCode, setOtpCode] = useState('');       // Input for OTP code
-  const [step, setStep] = useState('enterPhone');   // 'enterPhone' or 'enterOtp'
+  const [step, setStep] = useState('enterPhone');   // 'enterPhone' or 'enterOtp' or 'loggedIn'
   const [isLoading, setIsLoading] = useState(false); // Loading state for API calls
   const [errorMessage, setErrorMessage] = useState(''); // To display errors
   const [successMessage, setSuccessMessage] = useState(''); // To display success messages
@@ -17,18 +17,22 @@ export default function TwilioLoginBox() {
     setErrorMessage('');
     setSuccessMessage('');
 
+    // ---> Log the phone number state just before sending it <---
+    console.log('Frontend phone number state before fetch:', phoneNumber);
+
     try {
       const response = await fetch('/api/auth/start-verification', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ phone: phoneNumber }),
+        body: JSON.stringify({ phone: phoneNumber }), // Send the phone number state
       });
 
       const data = await response.json();
 
       if (!response.ok) {
+        // Use message from backend if available, otherwise a default
         throw new Error(data.message || 'Failed to send verification code.');
       }
 
@@ -38,6 +42,7 @@ export default function TwilioLoginBox() {
 
     } catch (error) {
       console.error('Phone Submission Error:', error);
+      // Display the specific error message caught
       setErrorMessage(error.message);
     } finally {
       setIsLoading(false);
@@ -57,11 +62,13 @@ export default function TwilioLoginBox() {
         headers: {
           'Content-Type': 'application/json',
         },
+        // Send both the original phone number and the entered OTP code
         body: JSON.stringify({ phone: phoneNumber, code: otpCode }),
       });
 
       const data = await response.json();
 
+      // Check for non-OK response OR explicit success: false from backend
       if (!response.ok || !data.success) {
          throw new Error(data.message || 'Invalid verification code.');
       }
@@ -69,7 +76,7 @@ export default function TwilioLoginBox() {
       // Verification successful!
       setSuccessMessage(data.message || 'Login Successful!');
       // TODO: Implement actual login logic here (e.g., set session, redirect)
-      // For now, just reset the form after success (optional)
+      // For now, just move to a 'loggedIn' state
        setStep('loggedIn'); // Or redirect, clear form etc.
 
     } catch (error) {
@@ -103,6 +110,7 @@ export default function TwilioLoginBox() {
               placeholder="+1xxxxxxxxxx" // Example format
               required
               style={styles.input}
+              disabled={isLoading} // Disable input while loading
             />
           </div>
           <button type="submit" disabled={isLoading} style={styles.button}>
@@ -127,12 +135,25 @@ export default function TwilioLoginBox() {
               required
               maxLength={6} // Match pattern if possible
               style={styles.input}
+              disabled={isLoading} // Disable input while loading
             />
           </div>
           <button type="submit" disabled={isLoading} style={styles.button}>
             {isLoading ? 'Verifying...' : 'Verify Code'}
           </button>
-           <button type="button" onClick={() => { setStep('enterPhone'); setErrorMessage(''); setSuccessMessage(''); setOtpCode(''); }} style={styles.linkButton}>
+           {/* Button to go back to phone entry step */}
+           <button
+             type="button"
+             onClick={() => {
+               setStep('enterPhone');
+               setErrorMessage('');
+               setSuccessMessage('');
+               setOtpCode(''); // Clear OTP code if going back
+               // Optionally clear phoneNumber too: setPhoneNumber('');
+             }}
+             style={styles.linkButton}
+             disabled={isLoading} // Disable while loading
+           >
              Change Phone Number
           </button>
         </form>
@@ -143,6 +164,7 @@ export default function TwilioLoginBox() {
          <div>
              <p style={styles.success}>Successfully logged in!</p>
              {/* Add logout button or redirect logic here */}
+             {/* Example: <button onClick={() => setStep('enterPhone')}>Log Out</button> */}
          </div>
       )}
     </div>
@@ -184,7 +206,13 @@ const styles = {
     fontSize: '16px',
     cursor: 'pointer',
     marginBottom: '10px',
+    opacity: 1, // Default opacity
   },
+  // Example for disabled button style (optional)
+  // button:disabled: {
+  //   opacity: 0.5,
+  //   cursor: 'not-allowed',
+  // },
    linkButton: {
       background: 'none',
       border: 'none',
@@ -193,14 +221,17 @@ const styles = {
       cursor: 'pointer',
       padding: '5px 0',
       display: 'block',
-      textAlign: 'center'
+      textAlign: 'center',
+      marginTop: '10px', // Add some space above the link button
   },
   error: {
     color: 'red',
     marginBottom: '10px',
+    fontSize: '0.9em',
   },
   success: {
     color: 'green',
     marginBottom: '10px',
+    fontSize: '0.9em',
   },
 };
