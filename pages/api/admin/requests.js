@@ -1,5 +1,5 @@
 // pages/api/admin/requests.js
-import { getPendingAccessRequests } from '../../lib/mongodb'; // Adjust path if needed
+import { getPendingAccessRequests } from '../../../lib/mongodb'; // Adjust path if needed
 
 export default async function handler(req, res) {
     // !!! IMPORTANT: ADD AUTHENTICATION/AUTHORIZATION CHECK HERE !!!
