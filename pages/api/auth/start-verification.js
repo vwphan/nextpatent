@@ -1,64 +1,16 @@
-// pages/api/auth/start-verification.js
-import twilio from 'twilio'; // Make sure to install twilio: npm install twilio
-
-// Initialize Twilio client from environment variables
-// Ensure these are set in your deployment environment (e.g., DigitalOcean App Platform)
-const accountSid = process.env.TWILIO_ACCOUNT_SID;
-const authToken = process.env.TWILIO_AUTH_TOKEN;
-// You'll also need your Twilio Verify Service SID
-const verifyServiceSid = process.env.TWILIO_VERIFY_SERVICE_SID; // Add this environment variable!
-
-let client;
-try {
-    if (!accountSid || !authToken || !verifyServiceSid) {
-        throw new Error("Twilio credentials or Verify Service SID are not configured in environment variables.");
-    }
-    client = twilio(accountSid, authToken);
-} catch (error) {
-    console.error("Failed to initialize Twilio client:", error.message);
-    // You might want to handle this more gracefully depending on your needs
-}
-
+// Temporary content for pages/api/auth/start-verification.js for debugging
 export default async function handler(req, res) {
-    // Allow only POST requests
-    if (req.method !== 'POST') {
+    // Log message RIGHT AT THE START of the handler
+    console.log("--- Minimal start-verification handler reached ---");
+
+    if (req.method === 'POST') {
+        const { phone } = req.body;
+        console.log("--- Minimal handler received phone:", phone, " ---");
+        // Return simple success without calling Twilio
+        res.status(200).json({ success: true, message: `Minimal API OK for ${phone}` });
+    } else {
+        console.log(`--- Minimal handler received non-POST method: ${req.method} ---`);
         res.setHeader('Allow', ['POST']);
-        return res.status(405).json({ message: `Method ${req.method} Not Allowed` });
-    }
-
-    // Ensure the client was initialized
-    if (!client) {
-         console.error("Twilio client not initialized. Check server logs for configuration errors.");
-         return res.status(500).json({ message: 'Twilio configuration error.' });
-    }
-
-
-    const { phone } = req.body;
-
-    // Basic validation
-    if (!phone) {
-        return res.status(400).json({ message: 'Phone number is required.' });
-    }
-    if (!verifyServiceSid) {
-         console.error("TWILIO_VERIFY_SERVICE_SID is not set.");
-         return res.status(500).json({ message: 'Twilio Verify Service SID is not configured on the server.' });
-    }
-
-
-    try {
-        console.log(`Attempting to send verification to: ${phone} using service ${verifyServiceSid}`);
-        const verification = await client.verify.v2.services(verifyServiceSid)
-            .verifications
-            .create({ to: phone, channel: 'sms' }); // Or 'call'
-
-        console.log('Twilio verification status:', verification.status);
-
-        // Important: Send a JSON response back to the frontend
-        res.status(200).json({ success: true, message: `Verification code sent to ${phone}` });
-
-    } catch (error) {
-        console.error('Error sending Twilio verification:', error);
-        // Provide a generic error message to the client for security
-        res.status(500).json({ success: false, message: 'Failed to send verification code. Please try again later.' });
+        res.status(405).json({ message: `Method ${req.method} Not Allowed` });
     }
 }
