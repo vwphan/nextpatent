@@ -1,5 +1,5 @@
 // pages/api/admin/requests/[id].js
-import { updateAccessRequestStatus } from '../../../lib/mongodb'; // Correct path
+import { updateAccessRequestStatus } from '../../../../lib/mongodb'; // Correct path
 import { ObjectId } from 'mongodb'; // Import ObjectId
 //testing thethis
 export default async function handler(req, res) {
