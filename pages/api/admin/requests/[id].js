@@ -1,5 +1,5 @@
 // pages/api/admin/requests/[id].js
-import { updateAccessRequestStatus } from '../../lib/mongodb'; // Adjust path
+import { updateAccessRequestStatus } from '../../../lib/mongodb'; // Adjust path
 
 export default async function handler(req, res) {
     // !!! IMPORTANT: ADD AUTHENTICATION/AUTHORIZATION CHECK HERE !!!
