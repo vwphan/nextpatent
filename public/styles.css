@@ -4,3 +4,42 @@
 .inter {
   font-family: "Inter", sans-serif;
 }
+
+/* Add existing imports */
+@import url("https://unpkg.com/tailwindcss@^1.0/dist/tailwind.min.css");
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@700&display=swap");
+
+.inter {
+  font-family: "Inter", sans-serif;
+}
+
+/* --- Add this CSS rule for input borders --- */
+input[type="text"],
+input[type="tel"],
+input[type="email"] {
+  border: 2px solid #031B4E; /* Example: Navy blue, 2px solid border */
+  padding: 8px 10px; /* Adjust padding if needed */
+  border-radius: 4px; /* Keep existing radius or adjust */
+  box-sizing: border-box;
+  width: 100%; /* Ensure it takes full width */
+}
+
+/* Optional: Style for when the input is focused */
+input[type="text"]:focus,
+input[type="tel"]:focus,
+input[type="email"]:focus {
+  border-color: #0061EB; /* Example: Change border color on focus */
+  outline: none; /* Remove default browser outline */
+  box-shadow: 0 0 0 2px rgba(0, 97, 235, 0.2); /* Optional subtle glow */
+}
+
+/* Optional: Style for disabled inputs */
+input[type="text"]:disabled,
+input[type="tel"]:disabled,
+input[type="email"]:disabled {
+    background-color: #f0f0f0; /* Lighter background for disabled */
+    border-color: #ccc; /* Lighter border for disabled */
+    cursor: not-allowed;
+}
+
+/* --- End of added CSS rules --- */
