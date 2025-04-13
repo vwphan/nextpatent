@@ -7,15 +7,32 @@ const authToken = process.env.TWILIO_AUTH_TOKEN;
 const verifyServiceSid = process.env.TWILIO_VERIFY_SERVICE_SID;
 
 let client;
+
 try {
-    if (!accountSid || !authToken || !verifyServiceSid) {
-        throw new Error("Twilio credentials or Verify Service SID are not configured in environment variables.");
+        let formattedPhone = phone;
+        // Ensure the phone number starts with '+' for E.164 format
+        if (!formattedPhone.startsWith('+')) {
+            formattedPhone = '+' + formattedPhone;
+            console.log(`Formatted phone number to E.164: ${formattedPhone}`); // Log the change
+        }
+
+        console.log(`Attempting to start verification for: ${formattedPhone} using service ${verifyServiceSid}`); // Use formattedPhone
+        const verification = await client.verify.v2.services(verifyServiceSid)
+            .verifications
+            // Use the potentially modified 'formattedPhone' variable here:
+            .create({ to: formattedPhone, channel: 'sms' });
+
+        console.log('Twilio verification initiation status:', verification.status);
+
+        res.status(200).json({ success: true, message: 'Verification code sent successfully!' });
+
+    } catch (error) {
+        // Keep the existing error handling
+        console.error('Error sending Twilio verification:', error);
+        res.status(500).json({ success: false, message: 'Failed to send verification code. Please try again later.' });
     }
-    client = twilio(accountSid, authToken);
-} catch (error) {
-    console.error("Failed to initialize Twilio client:", error.message);
-    // This error will prevent the handler from working, log it server-side
-}
+
+
 
 export default async function handler(req, res) {
     // Allow only POST requests
