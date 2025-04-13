@@ -7,32 +7,15 @@ const authToken = process.env.TWILIO_AUTH_TOKEN;
 const verifyServiceSid = process.env.TWILIO_VERIFY_SERVICE_SID;
 
 let client;
-
 try {
-        let formattedPhone = phone;
-        // Ensure the phone number starts with '+' for E.164 format
-        if (!formattedPhone.startsWith('+')) {
-            formattedPhone = '+' + formattedPhone;
-            console.log(`Formatted phone number to E.164: ${formattedPhone}`); // Log the change
-        }
-
-        console.log(`Attempting to start verification for: ${formattedPhone} using service ${verifyServiceSid}`); // Use formattedPhone
-        const verification = await client.verify.v2.services(verifyServiceSid)
-            .verifications
-            // Use the potentially modified 'formattedPhone' variable here:
-            .create({ to: formattedPhone, channel: 'sms' });
-
-        console.log('Twilio verification initiation status:', verification.status);
-
-        res.status(200).json({ success: true, message: 'Verification code sent successfully!' });
-
-    } catch (error) {
-        // Keep the existing error handling
-        console.error('Error sending Twilio verification:', error);
-        res.status(500).json({ success: false, message: 'Failed to send verification code. Please try again later.' });
+    if (!accountSid || !authToken || !verifyServiceSid) {
+        throw new Error("Twilio credentials or Verify Service SID are not configured in environment variables.");
     }
-
-
+    client = twilio(accountSid, authToken);
+} catch (error) {
+    console.error("Failed to initialize Twilio client:", error.message);
+    // This error will prevent the handler from working, log it server-side
+}
 
 export default async function handler(req, res) {
     // Allow only POST requests
@@ -51,28 +34,42 @@ export default async function handler(req, res) {
          return res.status(500).json({ success: false, message: 'Twilio Verify Service SID is not configured on the server.' });
     }
 
-
+    // ---> Make sure this line exists and is correct <---
     const { phone } = req.body;
+    // ---> This line gets the phone number from the request body <---
 
     // Basic validation
     if (!phone) {
-        return res.status(400).json({ success: false, message: 'Phone number is required.' });
+        // If 'phone' is missing from the request body, this error is returned.
+        return res.status(400).json({ success: false, message: 'Phone number is required in the request body.' });
     }
 
+    // Now, inside the try block, we can safely use the 'phone' variable
     try {
-        console.log(`Attempting to start verification for: ${phone} using service ${verifyServiceSid}`);
+        let formattedPhone = phone; // Use the 'phone' variable extracted above
+        // Ensure the phone number starts with '+' for E.164 format
+        if (!formattedPhone.startsWith('+')) {
+            formattedPhone = '+' + formattedPhone;
+            console.log(`Formatted phone number to E.164: ${formattedPhone}`);
+        }
+
+        console.log(`Attempting to start verification for: ${formattedPhone} using service ${verifyServiceSid}`);
         const verification = await client.verify.v2.services(verifyServiceSid)
             .verifications
-            .create({ to: phone, channel: 'sms' }); // Specify SMS channel
+            .create({ to: formattedPhone, channel: 'sms' }); // Use formattedPhone
 
-        console.log('Twilio verification initiation status:', verification.status); // Should be 'pending' if successful
+        console.log('Twilio verification initiation status:', verification.status);
 
-        // Let the frontend know the code was sent (or at least the request was accepted by Twilio)
         res.status(200).json({ success: true, message: 'Verification code sent successfully!' });
 
     } catch (error) {
-        console.error('Error sending Twilio verification:', error);
-        // Provide a generic error message, but log the specific error server-side
-        res.status(500).json({ success: false, message: 'Failed to send verification code. Please try again later.' });
+        console.error('Error sending Twilio verification:', error); // Log the actual error object
+        // Check if the error is a ReferenceError (though it shouldn't be now)
+        if (error instanceof ReferenceError) {
+             res.status(500).json({ success: false, message: `Internal server error: ${error.message}` });
+        } else {
+             // Handle other errors (like Twilio API errors)
+             res.status(500).json({ success: false, message: 'Failed to send verification code. Please try again later.' });
+        }
     }
 }
