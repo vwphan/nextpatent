@@ -9,7 +9,13 @@ const verifyServiceSid = process.env.TWILIO_VERIFY_SERVICE_SID; // Ensure this i
 
 let client;
 try {
-    if (!accountSid || !authToken || !verifyServiceSid) {
+  let formattedPhone = phone;
+        // Ensure the phone number starts with '+' for E.164 format
+        if (!formattedPhone.startsWith('+')) {
+            formattedPhone = '+' + formattedPhone;
+            console.log(`Formatted phone number for check to E.164: ${formattedPhone}`); // Optional log
+        }  
+  if (!accountSid || !authToken || !verifyServiceSid) {
         throw new Error("Twilio credentials or Verify Service SID are not configured in environment variables.");
     }
     client = twilio(accountSid, authToken);
