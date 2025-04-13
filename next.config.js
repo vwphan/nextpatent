@@ -1,6 +1,6 @@
 /** @type {import('next').NextConfig} */
 module.exports = { // <-- Export the config options directly
-  output: 'export',
+  //Soutput: 'export',
   distDir: "_static",
   images: {
     unoptimized: true
