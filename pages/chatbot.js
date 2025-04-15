@@ -21,10 +21,16 @@ export default function ChatbotPage() {
         <title>Chatbot</title>
       </Head>
       <h1>Welcome to the Chatbot!</h1>
-      {/* Add your primary chatbot component logic here if needed */}
-      <p>Your chatbot interface should appear via the widget script.</p>
-
       {isChatbotRunning && <Chatbot />}
-
       <input type="file" multiple onChange={handleFileChange} />
- />
+      <ul>
+        {files.length > 0 &&
+          Array.from(files).map((file, index) => (
+            <li key={index}>{file.name}</li>
+          ))}
+      </ul>
+      <button onClick={handleStopChatbot}>Stop Chatbot</button>
+      {!isChatbotRunning && <p>Chatbot stopped.</p>}
+    </div>
+  );
+ );
