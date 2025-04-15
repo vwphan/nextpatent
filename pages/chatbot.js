@@ -1,7 +1,5 @@
 // nextpatentcopy/pages/chatbot.js
-import React, { useState } from 'react';
-import Head from 'next/head';
-import Chatbot from '../components/Chatbot';
+import React, { useState, useEffect } from'react';
 
 export default function ChatbotPage() {
   const [files, setFiles] = useState([]);
@@ -15,13 +13,22 @@ export default function ChatbotPage() {
     setIsChatbotRunning(false);
   };
 
+  useEffect(() => {
+    const script = document.createElement('script');
+    script.src = 'https://agent-anez2noensqvrvyswwlwoicn-74ccw.ondigitalocean.app/static/chatbot/widget.js';
+    script.async = true;
+    script.defer = true;
+    document.body.appendChild(script);
+
+    return () => {
+      document.body.removeChild(script);
+    };
+  }, []);
+
   return (
     <div>
-      <Head>
-        <title>Chatbot</title>
-      </Head>
       <h1>Welcome to the Chatbot!</h1>
-      {isChatbotRunning && <Chatbot />}
+      {isChatbotRunning && <div id="chatbot-widget" />}
       <input type="file" multiple onChange={handleFileChange} />
       <ul>
         {files.length > 0 &&
@@ -33,4 +40,4 @@ export default function ChatbotPage() {
       {!isChatbotRunning && <p>Chatbot stopped.</p>}
     </div>
   );
- );
+}
