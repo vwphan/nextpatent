@@ -1,7 +1,7 @@
 // nextpatentcopy/pages/chatbot.js
 import React, { useState } from 'react';
 import Head from 'next/head';
-import Script from 'next/script';
+import Chatbot from '../components/Chatbot';
 
 export default function ChatbotPage() {
   const [files, setFiles] = useState([]);
@@ -24,30 +24,7 @@ export default function ChatbotPage() {
       {/* Add your primary chatbot component logic here if needed */}
       <p>Your chatbot interface should appear via the widget script.</p>
 
-      {isChatbotRunning && (
-        <Script
-          src="https://agent-anez2noensqvrvyswwlwoicn-74ccw.ondigitalocean.app/static/chatbot/widget.js"
-          strategy="lazyOnload" // Load script after page is interactive
-          data-agent-id="ab126012-08f0-11f0-bf8f-4e013e2ddde4"
-          data-chatbot-id="ggA4WTfX43OCURrAvpWi6stmn-uvENDh"
-          data-name="Albert the Examiner"
-          data-primary-color="#031B4E"
-          data-secondary-color="#E5E8ED"
-          data-button-background-color="#0061EB"
-        />
-      )}
+      {isChatbotRunning && <Chatbot />}
 
       <input type="file" multiple onChange={handleFileChange} />
-      <ul>
-        {files.length > 0 &&
-          Array.from(files).map((file, index) => (
-            <li key={index}>{file.name}</li>
-          ))}
-      </ul>
-
-      <button onClick={handleStopChatbot}>Stop Chatbot</button>
-
-      {!isChatbotRunning && <p>Chatbot stopped.</p>}
-    </div>
-  );
-}
+ />
