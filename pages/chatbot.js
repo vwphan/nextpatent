@@ -2,15 +2,21 @@
 import React, { useState, useEffect } from'react';
 
 export default function ChatbotPage() {
+  const [isChatbotOpen, setIsChatbotOpen] = useState(false);
+  const [isChatbotRunning, setIsChatbotRunning] = useState(false);
   const [files, setFiles] = useState([]);
-  const [isChatbotRunning, setIsChatbotRunning] = useState(true);
 
-  const handleFileChange = (event) => {
-    setFiles(event.target.files);
+  const handleOpenChatbot = () => {
+    setIsChatbotOpen(true);
+    setIsChatbotRunning(true);
   };
 
   const handleStopChatbot = () => {
     setIsChatbotRunning(false);
+  };
+
+  const handleFileChange = (event) => {
+    setFiles(event.target.files);
   };
 
   useEffect(() => {
@@ -28,16 +34,10 @@ export default function ChatbotPage() {
   return (
     <div>
       <h1>Welcome to the Chatbot!</h1>
-      {isChatbotRunning && <div id="chatbot-widget" />}
-      <input type="file" multiple onChange={handleFileChange} />
-      <ul>
-        {files.length > 0 &&
-          Array.from(files).map((file, index) => (
-            <li key={index}>{file.name}</li>
-          ))}
-      </ul>
-      <button onClick={handleStopChatbot}>Stop Chatbot</button>
-      {!isChatbotRunning && <p>Chatbot stopped.</p>}
-    </div>
-  );
-}
+      {!isChatbotOpen && (
+        <button onClick={handleOpenChatbot}>Open Chatbot</button>
+      )}
+      {isChatbotOpen && (
+        <div>
+          {isChatbotRunning && <div id="chatbot-widget" />}
+ />}
