@@ -40,4 +40,17 @@ export default function ChatbotPage() {
       {isChatbotOpen && (
         <div>
           {isChatbotRunning && <div id="chatbot-widget" />}
- />}
+          <input type="file" multiple onChange={handleFileChange} />
+          <ul>
+            {files.length > 0 &&
+              Array.from(files).map((file, index) => (
+                <li key={index}>{file.name}</li>
+              ))}
+          </ul>
+          <button onClick={handleStopChatbot}>Stop Chatbot</button>
+          {!isChatbotRunning && <p>Chatbot stopped.</p>}
+        </div>
+      )}
+    </div>
+  );
+}
